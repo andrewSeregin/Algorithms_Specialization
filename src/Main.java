@@ -3,13 +3,13 @@
  */
 public class Main {
 
-    public static void main (String[] args) {
+    public static void main (String[] args) throws Exception {
 
-        BigData valueOne = new BigData("4592");
-        BigData valueTwo = new BigData("67627");
+        BigData valueOne = new BigData("255");
+        BigData valueTwo = new BigData("1845");
 
-        valueOne.addToSelf(valueTwo);
-        System.out.println(valueOne);
+        BigData res = BigData.simpleMultiple(valueOne,valueTwo);
+        System.out.println(res);
 
     }
 
