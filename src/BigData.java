@@ -165,17 +165,18 @@ public class BigData {
         int sum;
         int pass = 0;
         for (; x >= 0; x--) {
-            for (int z = i; z >= 0; z--) {
+            for (int z = i, k = 0; z >= 0; z--, k++) {
                 if(multdata.get(x) != 0)sum = fromData.get(z) * multdata.get(x) + transfer;
                 else {
                     result.add(0);
                     break;
                 }
-                transfer = getTransfer(result, sum);
+                transfer = addTransferOfUpdate(result, sum, pass, pass + k);
             }
             pass++;
         }
 
+        appendTransfer(result, transfer, result.size() - 1);
         Collections.reverse(result);
         return new BigData(result, false);
     }
@@ -183,20 +184,12 @@ public class BigData {
     private static int addTransferOfUpdate(ArrayList<Integer> result, int sum, int pass, int index) {
         int count;
         int transfer;
-        boolean indexFlag = index - pass >= 0;
+        boolean indexFlag = index < result.size();
         if(pass == 0) {
-            if (Math.abs(sum) >= 10) {
-                int t = sum / 10;
-                count = sum % 10;
-                result.add(count);
-                transfer = t;
-            } else {
-                result.add(sum);
-                transfer = 0;
-            }
+            transfer = getTransfer(result, sum);
         }
         else {
-            int res = (indexFlag) ? result.get(index - pass) : 0;
+            int res = (indexFlag) ? result.get(index) : 0;
             if (Math.abs(sum) >= 10) {
                 int t = sum / 10;
                 count = sum % 10;
@@ -205,17 +198,29 @@ public class BigData {
                     if(count >= 10) {
                         int tt = count / 10;
                         count = count %10;
-                        result.set(index - pass, count);
-                        appendTransfer(result, tt, index - pass);
+                        result.set(index, count);
+                        appendTransfer(result, tt, index);
                     }
                     else {
-                        result.set(index - pass, count);
+                        result.set(index, count);
                     }
                 }
-                else result.add(0, count);
+                else result.add(result.size(), count);
                 transfer = t;
             } else {
-                result.add(sum);
+                if(indexFlag) {
+                    sum += res;
+                    if(sum >= 10) {
+                        int tt = sum / 10;
+                        count = sum %10;
+                        result.set(index, count);
+                        appendTransfer(result, tt, index);
+                    }
+                    else {
+                        result.set(index, sum);
+                    }
+                }
+                else result.add(result.size(), sum);
                 transfer = 0;
             }
         }
@@ -223,9 +228,9 @@ public class BigData {
     }
 
     private static void appendTransfer(ArrayList<Integer> result, int transfer, int indexFrom) {
-        int i = indexFrom - 1;
+        int i = indexFrom + 1;
         int count;
-        while(transfer != 0 || i >= 0) {
+        while(transfer != 0 && i < result.size()) {
             int sum = result.get(i) + transfer;
             if (Math.abs(sum) >= 10) {
                 int t = sum / 10;
@@ -236,10 +241,11 @@ public class BigData {
                 result.set(i, sum);
                 transfer = 0;
             }
+            i++;
         }
 
         if(transfer != 0) {
-            result.add(0, transfer);
+            result.add(result.size(), transfer);
         }
     }
 
