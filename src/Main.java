@@ -5,12 +5,22 @@ public class Main {
 
     public static void main (String[] args) throws Exception {
 
-        BigData valueOne = new BigData("255");
-        BigData valueTwo = new BigData("1845");
+        BigData valueOne = new BigData("3141592653589793238462643383279502884197169399375105820974944592");
+        BigData valueTwo = new BigData("2718281828459045235360287471352662497757247093699959574966967627");
 
-        BigData res = BigData.simpleMultiple(valueOne,valueTwo);
+
+
+        BigData res = BigData.subtractFromSelf(valueOne, valueTwo);
+        //BigData sum = BigData.subtractFromSelf(valueOne, valueTwo);
         System.out.println(res);
 
+        String s = "250290892930930912930930930931528209090909090970493042770433164277042704271642704290471247047131313131313131313125370246890908";
+        String s2 = "250290892930930912930930930931528209090909090970493042770433164277042704271642704290471247047131313131313131313125370246890908";
+        System.out.println(s.equals(s2));
+
+        String s3 = "423310825130748003102355911926840386439922305675146246007976965";
+        String s4 = "423310825130748003102355911926840386439922305675146246007976965";
+        System.out.println(s3.equals(s4));
     }
 
 }

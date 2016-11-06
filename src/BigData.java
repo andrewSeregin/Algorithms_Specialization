@@ -32,6 +32,15 @@ public class BigData {
 
     public static BigData addTwoValues(BigData val, BigData two) {
 
+        if (zeroTransformer(val.value)) {
+            two.value = removeZero(two.value);
+            return two;
+        }
+        if (zeroTransformer(two.value)) {
+            val.value = removeZero(val.value);
+            return val;
+        }
+
         ArrayList<Integer> result = new ArrayList<>();
         int transfer = 0;
         int i = two.value.size() - 1;
@@ -55,8 +64,41 @@ public class BigData {
             transfer = getTransfer(result, sum);
         }
 
+        if(transfer != 0) appendTransfer(result, transfer, i);
         Collections.reverse(result);
+
+        result = removeZero(result);
+
         return new BigData(result, false);
+    }
+
+    private static boolean zeroTransformer (ArrayList<Integer> array){
+        return findNotZero(array) == -1;
+    }
+
+    private static int findNotZero(ArrayList<Integer> array) {
+
+        for (int i = 0; i < array.size(); i++) {
+            if (array.get(i) > 0) return i;
+        }
+        return  -1;
+    }
+
+    private static ArrayList<Integer> removeZero (ArrayList<Integer> array) {
+
+        ArrayList<Integer> result = new ArrayList<>();
+
+        int index = findNotZero(array);
+
+        if (index != -1) {
+            for (int i = index; i < array.size(); i++) {
+                result.add(array.get(i));
+            }
+        } else {
+            return array;
+        }
+
+        return result;
     }
 
     private static int getTransfer(ArrayList<Integer> result, int sum) {
@@ -77,6 +119,18 @@ public class BigData {
     public static BigData subtractFromSelf(BigData val, BigData two) {
         ArrayList<Integer> result = new ArrayList<>();
         int from = findSelectFrom(val, two);
+
+        if (zeroTransformer(val.value)){
+            two.value =removeZero(two.value);
+            two.isNegative = !two.isNegative;
+            return two;
+        }
+
+        if (zeroTransformer(two.value)){
+            val.value =removeZero(val.value);
+            return val;
+        }
+
         ArrayList<Integer> fromData = (from == 1) ? val.value : two.value;
         ArrayList<Integer> substrData = (from == 1) ? two.value : val.value;
         boolean negative = from == 2;
@@ -94,6 +148,9 @@ public class BigData {
         }
 
         for (int j = i; j >= 0; j--) {
+
+            if (j == 0 && fromData.get(j) == 0) break;
+
             result.add(fromData.get(j));
         }
 
@@ -112,120 +169,101 @@ public class BigData {
             result.add(0);
         }
 
+        result = removeZero(result);
+
         return new BigData(result, negative);
     }
 
+    private static void normalize(BigData data, BigData data2) {
+        int choice = data.value.size() > data2.value.size() ? 1 : 2;
+        int number = -1;
+        switch (choice) {
+            case 1:
+                number = data.value.size()%2 == 0 ? data.value.size() : data.value.size() + 1;
+                break;
+            case 2:
+                number = data2.value.size()%2 == 0 ? data2.value.size() : data2.value.size() + 1;
+                break;
+        }
+        normalizeOne(data, number);
+        normalizeOne(data2, number);
+    }
+
+    private static void normalizeOne(BigData source, int normalsize) {
+        while (true) {
+            if(source.value.size() == normalsize) break;
+            source.value.add(0,0);
+        }
+    }
+
     public static BigData multipleTwoItems(BigData one, BigData two) throws Exception {
-        if(one.value.size() == 1) {
+        if(one.value.size() == 1 && two.value.size() == 1) {
             ArrayList<Integer> res = new ArrayList<>();
             int t = one.value.get(0) * two.value.get(0);
             return new BigData(new Integer(t).toString());
         }
+
+        normalize(one, two);
+
         BigData xh = new BigData();
-        xh.value = getHalf(one.value, false);
+        xh.value = getHalf(one.value, true);
         xh.isNegative = one.isNegative;
 
         BigData xl = new BigData();
-        xl.value = getHalf(one.value, true);
+        xl.value = getHalf(one.value, false);
         xl.isNegative = one.isNegative;
 
         BigData yh = new BigData();
-        yh.value = getHalf(two.value, false);
+        yh.value = getHalf(two.value, true);
         yh.isNegative = two.isNegative;
 
         BigData yl = new BigData();
-        yl.value = getHalf(two.value, true);
+        yl.value = getHalf(two.value, false);
         yl.isNegative = two.isNegative;
 
         BigData a = multipleTwoItems(xh, yh);
         BigData d = multipleTwoItems(xl, yl);
-        BigData e = multipleTwoItems(addTwoValues(xh, xl), addTwoValues(yh, yl));
+        BigData sumOfXhXl = addTwoValues(xh, xl);
+        BigData sumOfYhYl = addTwoValues(yh, yl);
+        BigData e = multipleTwoItems(sumOfXhXl, sumOfYhYl);
+
         e = subtractFromSelf(e,a);
         e = subtractFromSelf(e, d);
 
         BigData power1 = new BigData(new Integer((int)Math.pow(10, one.value.size())).toString());
         BigData power2 = new BigData(new Integer((int)Math.pow(10, (int)(one.value.size() / 2))).toString());
 
-        //TODO : Fix me not now!!!!!!!
-        BigData xy = simpleMultiple(a, power1);
-        xy = addTwoValues(xy, simpleMultiple(e, power2));
-        xy = addTwoValues(xy, d);
-        return xy;
+
+        BigData multAOnTenN = appendZero(a, power1);
+        BigData multEOnTenN = appendZero(e, power2);
+        BigData addAE = addTwoValues(multAOnTenN, multEOnTenN);
+
+        BigData result = addTwoValues(addAE, d);
+
+        return result;
     }
 
-    public static BigData simpleMultiple(BigData one, BigData two) {
-        ArrayList<Integer> result = new ArrayList<>();
-        int transfer = 0;
-        boolean sizer = one.value.size() > two.value.size();
-        int i = sizer ? one.value.size() - 1 : two.value.size() - 1;
-        int x = sizer ? two.value.size() - 1 : one.value.size() - 1;
-        ArrayList<Integer> fromData = sizer ? one.value : two.value;
-        ArrayList<Integer> multdata = sizer ? two.value : one.value;
+    private static BigData appendZero(BigData value, BigData pow) {
 
-        int sum;
-        int pass = 0;
-        for (; x >= 0; x--) {
-            for (int z = i; z >= 0; z--) {
-                if(multdata.get(x) != 0)sum = fromData.get(z) * multdata.get(x) + transfer;
-                else {
-                    result.add(0);
-                    break;
-                }
-                transfer = getTransfer(result, sum);
-            }
-            pass++;
+        BigData result = new BigData();
+
+        value.value.forEach(x -> result.value.add(x));
+
+        for (int i = 0; i < pow.value.size() - 1; i++) {
+            result.value.add(0);
         }
 
-        Collections.reverse(result);
-        return new BigData(result, false);
+        return  result;
     }
 
-    private static int addTransferOfUpdate(ArrayList<Integer> result, int sum, int pass, int index) {
-        int count;
-        int transfer;
-        boolean indexFlag = index - pass >= 0;
-        if(pass == 0) {
-            if (Math.abs(sum) >= 10) {
-                int t = sum / 10;
-                count = sum % 10;
-                result.add(count);
-                transfer = t;
-            } else {
-                result.add(sum);
-                transfer = 0;
-            }
-        }
-        else {
-            int res = (indexFlag) ? result.get(index - pass) : 0;
-            if (Math.abs(sum) >= 10) {
-                int t = sum / 10;
-                count = sum % 10;
-                if(indexFlag) {
-                    count += res;
-                    if(count >= 10) {
-                        int tt = count / 10;
-                        count = count %10;
-                        result.set(index - pass, count);
-                        appendTransfer(result, tt, index - pass);
-                    }
-                    else {
-                        result.set(index - pass, count);
-                    }
-                }
-                else result.add(0, count);
-                transfer = t;
-            } else {
-                result.add(sum);
-                transfer = 0;
-            }
-        }
-        return transfer;
+    private boolean checkStringForNumbers(String input) {
+        return Pattern.matches("^(-)?(\\d)+$", input);
     }
 
     private static void appendTransfer(ArrayList<Integer> result, int transfer, int indexFrom) {
         int i = indexFrom - 1;
         int count;
-        while(transfer != 0 || i >= 0) {
+        while(transfer != 0 && i >= 0) {
             int sum = result.get(i) + transfer;
             if (Math.abs(sum) >= 10) {
                 int t = sum / 10;
@@ -239,15 +277,15 @@ public class BigData {
         }
 
         if(transfer != 0) {
-            result.add(0, transfer);
+            result.add(result.size(), transfer);
         }
     }
 
     public static ArrayList<Integer> getHalf(ArrayList<Integer> source, boolean first) {
         ArrayList<Integer> list = new ArrayList<Integer>();
-        int index = first ? source.size() - 1 : source.size() / 2 - 1;
-        int end = first ? source.size() / 2 : 0;
-        for (int i = index; i >= end; i--) {
+        int index = first ? 0 : source.size() / 2;
+        int end = first ? source.size() / 2 : source.size();
+        for (int i = index; i < end; i++) {
             list.add(source.get(i));
         }
         return list;
@@ -270,14 +308,21 @@ public class BigData {
 
     private static int findSelectFrom(BigData val, BigData other) {
         int from = 0;
-        if(val.value.size() > other.value.size()) {
+        int idx = findNotZero(val.value);
+        int idxOther = findNotZero(other.value);
+        int len = val.value.size() - idx;
+        int lenOther = other.value.size() - idxOther;
+        if(len > lenOther) {
             from = 1;
         }
-        else if(val.value.size() < other.value.size()) {
+        else if(len < lenOther) {
             from = 2;
         }
         else {
-            from = (other.value.get(0) < val.value.get(0)) ? 1 : 2;
+
+            if (idx == -1 || idxOther == -1) return from;
+
+            from = (other.value.get(idxOther) < val.value.get(idx)) ? 1 : 2;
         }
         return from;
     }
@@ -296,7 +341,4 @@ public class BigData {
         return sb.toString();
     }
 
-    private boolean checkStringForNumbers(String input) {
-        return Pattern.matches("^(-)?(\\d)+$", input);
-    }
 }
