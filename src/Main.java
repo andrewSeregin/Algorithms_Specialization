@@ -4,23 +4,12 @@
 public class Main {
 
     public static void main (String[] args) throws Exception {
+        KaratsubaNumber number1, number2;
+        number1 = new KaratsubaNumber("0000000000000000000009");
+        number2 = new KaratsubaNumber("5456456456456456456454564564");
 
-        BigData valueOne = new BigData("3141592653589793238462643383279502884197169399375105820974944592");
-        BigData valueTwo = new BigData("2718281828459045235360287471352662497757247093699959574966967627");
+        System.out.println(FastMath.addTwoValues(number1,number2));
 
-
-
-        BigData res = BigData.subtractFromSelf(valueOne, valueTwo);
-        //BigData sum = BigData.subtractFromSelf(valueOne, valueTwo);
-        System.out.println(res);
-
-        String s = "250290892930930912930930930931528209090909090970493042770433164277042704271642704290471247047131313131313131313125370246890908";
-        String s2 = "250290892930930912930930930931528209090909090970493042770433164277042704271642704290471247047131313131313131313125370246890908";
-        System.out.println(s.equals(s2));
-
-        String s3 = "423310825130748003102355911926840386439922305675146246007976965";
-        String s4 = "423310825130748003102355911926840386439922305675146246007976965";
-        System.out.println(s3.equals(s4));
     }
 
 }
