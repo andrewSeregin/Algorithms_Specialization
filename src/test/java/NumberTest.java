@@ -1,3 +1,6 @@
+import edu.algorithmes_specialization.week1.*;
+
+import edu.algorithmes_specialization.week1.Number;
 import org.junit.Assert;
 import org.junit.Test;
 
