@@ -33,7 +33,7 @@ public class Main {
         lst.add(2);
         lst.add(4);
         lst.add(6);*/
-        System.out.println("Count of inversions: " + new InversionsCounter().CountInversions(lst));
+        System.out.println("Count of inversions: " + new InversionsCounter().countInversions(lst));
     }
 
 }
