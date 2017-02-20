@@ -7,17 +7,17 @@ import java.util.Collections;
  * Created by Ivan on 18.02.2017.
  */
 public class InversionsCounter {
-    public double CountInversions(ArrayList<Integer> array){
-        return SortAndCount(array).getCountOfInversions();
+    public double countInversions(ArrayList<Integer> array){
+        return sortAndCount(array).getCountOfInversions();
     }
 
-    private SortArrayResult SortAndCount(ArrayList<Integer> array) {
+    private SortArrayResult sortAndCount(ArrayList<Integer> array) {
         if(array.size() == 1) {
             return new SortArrayResult(array, 0);
         }
 
-        SortArrayResult a = SortAndCount(getArrayHalf(array, 1));
-        SortArrayResult b = SortAndCount(getArrayHalf(array,2));
+        SortArrayResult a = sortAndCount(getArrayHalf(array, 1));
+        SortArrayResult b = sortAndCount(getArrayHalf(array,2));
         SortArrayResult d = mergeAndCount(a.getSortedArray(), b.getSortedArray(), array.size());
 
         double aCount = a.getCountOfInversions();
