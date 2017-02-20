@@ -7,7 +7,7 @@ import java.util.Collections;
  * Created by Ivan on 18.02.2017.
  */
 public class InversionsCounter {
-    public int CountInversions(ArrayList<Integer> array){
+    public double CountInversions(ArrayList<Integer> array){
         return SortAndCount(array).getCountOfInversions();
     }
 
@@ -20,8 +20,14 @@ public class InversionsCounter {
         SortArrayResult b = SortAndCount(getArrayHalf(array,2));
         SortArrayResult d = mergeAndCount(a.getSortedArray(), b.getSortedArray(), array.size());
 
+        double aCount = a.getCountOfInversions();
+        double bCount = b.getCountOfInversions();
+        double dCount = d.getCountOfInversions();
+        System.out.println("aCount = " + aCount);
+        System.out.println("bCount = " + bCount);
+        System.out.println("dCount = " + dCount + "\n\n");
         return new SortArrayResult(d.getSortedArray(),
-                a.getCountOfInversions() + b.getCountOfInversions() + d.getCountOfInversions());
+                 aCount + bCount + dCount);
     }
 
     private SortArrayResult mergeAndCount(ArrayList<Integer> first, ArrayList<Integer> second, int size) {
@@ -38,8 +44,10 @@ public class InversionsCounter {
             }
             else {
                 mergedArray.add(k, second.get(j));
-                j++;
+                //System.out.println("sizeFirst - i:" + (sizeFirst - i));
                 countOfInversions += sizeFirst - i;
+                //System.out.println("count of inversions: " + countOfInversions + "\n\n");
+                j++;
             }
         }
         if(i != sizeFirst) {
@@ -76,17 +84,17 @@ public class InversionsCounter {
 
     private class SortArrayResult{
         private ArrayList<Integer> sortedArray;
-        private int countOfInversions;
+        private double countOfInversions;
 
         public ArrayList<Integer> getSortedArray() {
             return sortedArray;
         }
 
-        public int getCountOfInversions() {
+        public double getCountOfInversions() {
             return countOfInversions;
         }
 
-        public SortArrayResult(ArrayList<Integer> sortedArray, int countOfInversions) {
+        public SortArrayResult(ArrayList<Integer> sortedArray, double countOfInversions) {
             this.sortedArray = sortedArray;
             this.countOfInversions = countOfInversions;
         }
